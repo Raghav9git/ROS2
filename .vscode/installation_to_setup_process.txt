@@ -1,0 +1,216 @@
+WSL + ROS 2 Humble Setup Guide
+
+1. Install WSL
+Open Windows PowerShell as Administrator.
+
+Install WSL using:
+
+wsl --install
+
+Restart Windows if requested.
+
+List available Linux distributions:
+
+wsl --list --online
+
+2. Install Ubuntu 22.04
+
+Install Ubuntu 22.04:
+
+wsl --install -d Ubuntu-22.04
+
+Launch Ubuntu and create a Linux username and password.
+
+Verify installed distributions from Windows PowerShell:
+
+wsl --list --verbose
+
+Launch the correct distribution:
+
+wsl -d Ubuntu-22.04
+
+Verify Ubuntu:
+
+lsb_release -a
+
+Expected: Ubuntu 22.04 LTS, codename jammy.
+
+3. Update Ubuntu and configure the locale
+
+Run inside Ubuntu 22.04:
+
+sudo apt update && sudo apt upgrade -y
+
+Install locale tools:
+
+sudo apt install locales -y
+
+Generate the UTF-8 locale:
+
+sudo locale-gen en_US.UTF-8
+
+Configure the locale:
+
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+
+Set the current terminal's language:
+
+export LANG=en_US.UTF-8
+
+Verify:
+
+locale
+
+4. Enable the required repository
+
+Run:
+
+sudo apt install software-properties-common -y
+
+sudo add-apt-repository universe
+
+5. Add the official ROS 2 package repository
+
+Install curl:
+
+sudo apt update && sudo apt install curl -y
+
+Download the ROS signing key:
+
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+Add the repository:
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+Update the package list:
+
+sudo apt update
+
+6. Install ROS 2 Humble
+
+Inside Ubuntu 22.04, run:
+
+sudo apt install ros-humble-desktop -y
+
+Verify the installation:
+
+ls /opt/ros
+
+Expected output:
+
+humble
+
+7. Configure the ROS 2 environment
+
+Load ROS 2 manually:
+
+source /opt/ros/humble/setup.bash
+
+Check the distribution:
+
+echo $ROS_DISTRO
+
+Expected output:
+
+humble
+
+To load ROS 2 automatically in future Bash terminals, check whether the setup command is already in .bashrc:
+
+grep -n 'source /opt/ros/humble/setup.bash' ~/.bashrc
+
+If no matching line appears, add it:
+
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+Apply the configuration:
+
+source ~/.bashrc
+
+Verify again:
+
+echo $ROS_DISTRO
+
+8. Open the ROS 2 project in VS Code
+
+The project folder is:
+
+C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
+
+Its equivalent path inside Ubuntu is:
+
+/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2
+
+Navigate to the folder:
+
+cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
+
+Open VS Code:
+
+code .
+
+Verify that VS Code is connected to Ubuntu 22.04 through WSL.
+
+9. Reopen the environment later
+Open Windows PowerShell.
+
+Launch Ubuntu 22.04:
+
+wsl -d Ubuntu-22.04
+
+Navigate to the project folder:
+
+cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
+
+Open VS Code:
+
+code .
+
+Open a terminal using Terminal → New Terminal.
+
+Verify ROS 2:
+
+echo $ROS_DISTRO
+
+Expected output:
+
+humble
+
+10. Common errors and fixes
+
+Error: wsl: command not found
+
+Cause: A Windows WSL command was entered inside Ubuntu.
+Fix: Run wsl --list --verbose in Windows PowerShell.
+
+Error: /opt/ros does not exist
+
+Cause: ROS 2 is not installed in the current Ubuntu distribution.
+Fix: Confirm the distribution using lsb_release -a. Install ROS 2 in the correct compatible distribution.
+
+Error: setup.bash: No such file or directory
+
+Cause: The setup file path is incorrect or ROS 2 is not installed.
+Correct path for Humble: /opt/ros/humble/setup.bash
+
+Error: echo $ROS_DISTRO prints nothing
+
+Cause: The ROS 2 environment has not been sourced in the current terminal, or ROS 2 is not installed.
+Fix: Run source /opt/ros/humble/setup.bash, then check again.
+
+Error: VS Code terminal shows MINGW64 or UCRT64
+
+Cause: The terminal is running Git Bash rather than Ubuntu.
+Fix: Connect VS Code to Ubuntu-22.04 through WSL and open a new terminal.
+
+Error: cd reports No such file or directory
+
+Cause: The path is incorrect or the folder does not exist.
+Fix: Check the Windows folder path and use the equivalent /mnt/c/... path inside Ubuntu.
+Current setup
+Operating system: Windows 11
+Linux environment: Ubuntu 22.04.5 LTS through WSL 2
+ROS 2 distribution: Humble
+ROS 2 installation directory: /opt/ros/humble
+VS Code: Connected through WSL
+Project folder: C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
