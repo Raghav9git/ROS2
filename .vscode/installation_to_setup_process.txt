@@ -1,216 +1,501 @@
-WSL + ROS 2 Humble Setup Guide
+# WSL + ROS 2 Humble Setup Guide
 
-1. Install WSL
-Open Windows PowerShell as Administrator.
+## 1. Install WSL
 
-Install WSL using:
+1. Open Windows PowerShell as Administrator.
 
-wsl --install
+2. Install WSL:
 
-Restart Windows if requested.
+   wsl --install
 
-List available Linux distributions:
+3. Restart Windows if requested.
 
-wsl --list --online
+4. List available Linux distributions:
 
-2. Install Ubuntu 22.04
+   wsl --list --online
 
-Install Ubuntu 22.04:
+## 2. Install Ubuntu 22.04
 
-wsl --install -d Ubuntu-22.04
+1. Install Ubuntu 22.04:
 
-Launch Ubuntu and create a Linux username and password.
+   wsl --install -d Ubuntu-22.04
 
-Verify installed distributions from Windows PowerShell:
+2. Launch Ubuntu and create a Linux username and password.
 
-wsl --list --verbose
+3. Verify installed distributions from Windows PowerShell:
 
-Launch the correct distribution:
+   wsl --list --verbose
 
-wsl -d Ubuntu-22.04
+4. Launch the correct distribution:
 
-Verify Ubuntu:
+   wsl -d Ubuntu-22.04
 
-lsb_release -a
+5. Verify Ubuntu:
 
-Expected: Ubuntu 22.04 LTS, codename jammy.
+   lsb_release -a
 
-3. Update Ubuntu and configure the locale
+   Expected:
+
+   * Description: Ubuntu 22.04.5 LTS
+   * Codename: jammy
+
+IMPORTANT: Use Ubuntu-22.04 for this ROS 2 Humble course. The original Ubuntu distribution is Ubuntu 26.04 and is a separate environment.
+
+## 3. Update Ubuntu and configure the locale
 
 Run inside Ubuntu 22.04:
 
+```
 sudo apt update && sudo apt upgrade -y
+```
 
 Install locale tools:
 
+```
 sudo apt install locales -y
+```
 
 Generate the UTF-8 locale:
 
+```
 sudo locale-gen en_US.UTF-8
+```
 
 Configure the locale:
 
+```
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+```
 
 Set the current terminal's language:
 
+```
 export LANG=en_US.UTF-8
+```
 
 Verify:
 
+```
 locale
+```
 
-4. Enable the required repository
+## 4. Enable the required repository
 
 Run:
 
+```
 sudo apt install software-properties-common -y
 
 sudo add-apt-repository universe
+```
 
-5. Add the official ROS 2 package repository
+## 5. Add the official ROS 2 package repository
 
 Install curl:
 
+```
 sudo apt update && sudo apt install curl -y
+```
 
 Download the ROS signing key:
 
+```
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+```
 
 Add the repository:
 
+```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+```
 
 Update the package list:
 
+```
 sudo apt update
+```
 
-6. Install ROS 2 Humble
+## 6. Install ROS 2 Humble Desktop
 
-Inside Ubuntu 22.04, run:
+Run inside Ubuntu 22.04:
 
+```
 sudo apt install ros-humble-desktop -y
+```
 
 Verify the installation:
 
+```
 ls /opt/ros
+```
 
 Expected output:
 
+```
 humble
+```
 
-7. Configure the ROS 2 environment
+ROS 2 Humble is installed in:
+
+```
+/opt/ros/humble
+```
+
+## 7. Configure the ROS 2 environment
 
 Load ROS 2 manually:
 
+```
 source /opt/ros/humble/setup.bash
+```
 
 Check the distribution:
 
+```
 echo $ROS_DISTRO
+```
 
 Expected output:
 
+```
 humble
+```
 
-To load ROS 2 automatically in future Bash terminals, check whether the setup command is already in .bashrc:
+Configure automatic loading in future Bash terminals.
 
+First, check whether the command is already in .bashrc:
+
+```
 grep -n 'source /opt/ros/humble/setup.bash' ~/.bashrc
+```
 
 If no matching line appears, add it:
 
+```
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+```
 
 Apply the configuration:
 
+```
 source ~/.bashrc
+```
 
 Verify again:
 
+```
 echo $ROS_DISTRO
-
-8. Open the ROS 2 project in VS Code
-
-The project folder is:
-
-C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
-
-Its equivalent path inside Ubuntu is:
-
-/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2
-
-Navigate to the folder:
-
-cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
-
-Open VS Code:
-
-code .
-
-Verify that VS Code is connected to Ubuntu 22.04 through WSL.
-
-9. Reopen the environment later
-Open Windows PowerShell.
-
-Launch Ubuntu 22.04:
-
-wsl -d Ubuntu-22.04
-
-Navigate to the project folder:
-
-cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
-
-Open VS Code:
-
-code .
-
-Open a terminal using Terminal → New Terminal.
-
-Verify ROS 2:
-
-echo $ROS_DISTRO
+```
 
 Expected output:
 
+```
 humble
+```
 
-10. Common errors and fixes
+## 8. Install turtlesim
 
-Error: wsl: command not found
+turtlesim is a small 2D simulator used to learn and test ROS 2 commands.
+
+Update the package list:
+
+```
+sudo apt update
+```
+
+Install turtlesim:
+
+```
+sudo apt install ros-humble-turtlesim -y
+```
+
+Verify that the package is available:
+
+```
+ros2 pkg list | grep turtlesim
+```
+
+Expected output includes:
+
+```
+turtlesim
+```
+
+## 9. Run and test turtlesim
+
+IMPORTANT: Use two separate Ubuntu terminals. Both must be connected to Ubuntu-22.04, with the ROS 2 environment loaded.
+
+### Terminal 1: Start the simulation
+
+Run:
+
+```
+ros2 run turtlesim turtlesim_node
+```
+
+A graphical window containing a turtle should appear. Keep this terminal running.
+
+### Terminal 2: Start keyboard control
+
+Open a second terminal using Terminal > New Terminal.
+
+Run:
+
+```
+ros2 run turtlesim turtle_teleop_key
+```
+
+Click inside this terminal and use the arrow keys to move the turtle.
+
+Do not type words such as "gbvcert". The program responds to the arrow keys.
+
+### Viewing and controlling the turtle
+
+* Keep the turtlesim window visible.
+* Arrange the turtlesim window and VS Code side by side.
+* Click inside the teleoperation terminal to give it keyboard focus.
+* Use the arrow keys while watching the turtle in the graphical window.
+* Avoid clicking the graphical window while controlling the turtle, because keyboard focus may change.
+
+Keep both ROS 2 processes running during the test.
+
+### Optional verification
+
+Open a third Ubuntu terminal and run:
+
+```
+ros2 node list
+```
+
+You should see nodes similar to:
+
+```
+/teleop_turtle
+/turtlesim
+```
+
+List available topics:
+
+```
+ros2 topic list
+```
+
+The list should include:
+
+```
+/turtle1/cmd_vel
+```
+
+## 10. Open the ROS 2 project in VS Code
+
+### Project location
+
+Windows path:
+
+```
+C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
+```
+
+Equivalent Ubuntu path:
+
+```
+/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2
+```
+
+### Open the project
+
+Inside an Ubuntu-22.04 terminal, run:
+
+```
+cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
+```
+
+Open VS Code:
+
+```
+code .
+```
+
+Verify that VS Code is connected to Ubuntu through WSL. The bottom-left corner should show a WSL connection.
+
+The terminal should be a Linux Bash terminal, not Git Bash or MSYS2.
+
+## 11. Reopen the environment after closing VS Code
+
+Whenever you want to resume ROS 2 development:
+
+1. Open Windows PowerShell.
+
+2. Launch Ubuntu 22.04:
+
+   ```
+   wsl -d Ubuntu-22.04
+   ```
+
+3. Navigate to the project folder:
+
+   ```
+   cd "/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2"
+   ```
+
+4. Open VS Code:
+
+   ```
+   code .
+   ```
+
+5. In VS Code, select Terminal > New Terminal.
+
+6. Verify ROS 2:
+
+   ```
+   echo $ROS_DISTRO
+   ```
+
+   Expected output:
+
+   ```
+   humble
+   ```
+
+7. If the command prints nothing, load ROS 2 manually:
+
+   ```
+   source /opt/ros/humble/setup.bash
+   ```
+
+8. Verify again:
+
+   ```
+   echo $ROS_DISTRO
+   ```
+
+   Expected output:
+
+   ```
+   humble
+   ```
+
+IMPORTANT: If VS Code opens a new window, check that it is connected to Ubuntu-22.04, not the original Ubuntu distribution.
+
+## 12. Common errors and fixes
+
+### Error: wsl: command not found
 
 Cause: A Windows WSL command was entered inside Ubuntu.
+
 Fix: Run wsl --list --verbose in Windows PowerShell.
 
-Error: /opt/ros does not exist
+### Error: /opt/ros does not exist
 
 Cause: ROS 2 is not installed in the current Ubuntu distribution.
-Fix: Confirm the distribution using lsb_release -a. Install ROS 2 in the correct compatible distribution.
 
-Error: setup.bash: No such file or directory
+Fix:
+
+1. Run lsb_release -a.
+2. Confirm that you are using Ubuntu 22.04.
+3. Check whether ROS 2 Humble is installed.
+
+### Error: setup.bash: No such file or directory
 
 Cause: The setup file path is incorrect or ROS 2 is not installed.
-Correct path for Humble: /opt/ros/humble/setup.bash
 
-Error: echo $ROS_DISTRO prints nothing
+Correct path:
 
-Cause: The ROS 2 environment has not been sourced in the current terminal, or ROS 2 is not installed.
-Fix: Run source /opt/ros/humble/setup.bash, then check again.
+```
+/opt/ros/humble/setup.bash
+```
 
-Error: VS Code terminal shows MINGW64 or UCRT64
+Correct command:
 
-Cause: The terminal is running Git Bash rather than Ubuntu.
-Fix: Connect VS Code to Ubuntu-22.04 through WSL and open a new terminal.
+```
+source /opt/ros/humble/setup.bash
+```
 
-Error: cd reports No such file or directory
+### Error: echo $ROS_DISTRO prints nothing
 
-Cause: The path is incorrect or the folder does not exist.
-Fix: Check the Windows folder path and use the equivalent /mnt/c/... path inside Ubuntu.
-Current setup
+Cause: The ROS 2 environment has not been sourced, or ROS 2 is not installed in the current distribution.
+
+Fix:
+
+```
+source /opt/ros/humble/setup.bash
+```
+
+Then:
+
+```
+echo $ROS_DISTRO
+```
+
+### Error: VS Code terminal shows MINGW64 or UCRT64
+
+Cause: The terminal is running Git Bash or MSYS2 instead of Ubuntu.
+
+Fix:
+
+1. Launch Ubuntu-22.04.
+2. Navigate to the project directory.
+3. Run code .
+4. Open a new terminal in VS Code.
+
+### Error: cd reports No such file or directory
+
+Cause: The path is incorrect or the directory does not exist.
+
+Fix: Check the Windows folder path and use the corresponding /mnt/c/... path inside Ubuntu.
+
+### Error: turtlesim opens but the turtle does not move
+
+Cause: The teleoperation terminal may not have keyboard focus, or the teleoperation process may not be running correctly.
+
+Fix:
+
+1. Start turtlesim in one terminal.
+2. Start turtle_teleop_key in another.
+3. Click inside the teleoperation terminal.
+4. Use the arrow keys.
+
+### Error: The turtle moves, but I cannot see it while controlling it
+
+Cause: Keyboard focus is on the terminal, so clicking the graphical window can interrupt keyboard control.
+
+Fix: Arrange VS Code and the turtlesim window side by side. Keep the teleoperation terminal focused while watching the graphical window.
+
+## 13. Current setup summary
+
 Operating system: Windows 11
+
 Linux environment: Ubuntu 22.04.5 LTS through WSL 2
+
+Ubuntu codename: jammy
+
 ROS 2 distribution: Humble
+
 ROS 2 installation directory: /opt/ros/humble
+
+ROS 2 Desktop: Installed
+
+turtlesim: Installed and tested
+
 VS Code: Connected through WSL
-Project folder: C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
+
+Project folder:
+
+C:\Users\Raghav Sathe\Desktop\R\Projects\Individuals\ROS 2
+
+Ubuntu equivalent:
+
+/mnt/c/Users/Raghav Sathe/Desktop/R/Projects/Individuals/ROS 2
+
+## 14. Next steps
+
+The initial ROS 2 environment and turtlesim test are complete.
+
+Next, create a ROS 2 workspace and begin learning:
+
+1. ROS 2 nodes.
+2. Topics and messages.
+3. Publishers and subscribers.
+4. ROS 2 packages.
+5. Writing and running Python or C++ nodes.
